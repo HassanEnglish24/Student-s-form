@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Student Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
+</head>
+<body>
+    <h1>Student Data Entry</h1>
+    <form id="student-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br>
+        <label for="id">ID Number:</label>
+        <input type="text" id="id" required><br>
+        <label for="history">History Marks:</label>
+        <input type="number" id="history" required><br>
+        <label for="math">Math Marks:</label>
+        <input type="number" id="math" required><br>
+        <label for="english">English Marks:</label>
+        <input type="number" id="english" required><br>
+        <label for="geography">Geography Marks:</label>
+        <input type="number" id="geography" required><br>
+        <button type="submit">Save Data</button>
+    </form>
+
+    <h1>Check Student Results</h1>
+    <form id="check-form">
+        <label for="check-id">ID Number:</label>
+        <input type="text" id="check-id" required><br>
+        <label for="check-name">Full Name:</label>
+        <input type="text" id="check-name" required><br>
+        <button type="submit">Check Results</button>
+    </form>
+
+    <h2>Results:</h2>
+    <div id="results"></div>
+
+    <script>
+        // Initialize localForage
+        localforage.config({
+            name: 'studentDataApp'
+        });
+
+        // Function to calculate total marks
+        function calculateTotal(history, math, english, geography) {
+            return history + math + english + geography;
+        }
+
+        // Handle form submission to save student data
+        document.getElementById('student-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const name = document.getElementById('name').value;
+            const id = document.getElementById('id').value;
+            const history = parseInt(document.getElementById('history').value);
+            const math = parseInt(document.getElementById('math').value);
+            const english = parseInt(document.getElementById('english').value);
+            const geography = parseInt(document.getElementById('geography').value);
+            const total = calculateTotal(history, math, english, geography);
+
+            const studentData = { id, name, history, math, english, geography, total };
+
+            localforage.setItem(id, studentData).then(function() {
+                alert('Student data saved successfully!');
+                document.getElementById('student-form').reset();
+            });
+        });
+
+        // Handle form submission to check student results
+        document.getElementById('check-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const checkId = document.getElementById('check-id').value;
+            const checkName = document.getElementById('check-name').value;
+
+            localforage.getItem(checkId).then(function(studentData) {
+                if (studentData && studentData.name === checkName) {
+                    const resultsDiv = document.getElementById('results');
+                    resultsDiv.innerHTML = `
+                        <p>Name: ${studentData.name}</p>
+                        <p>ID Number: ${studentData.id}</p>
+                        <p>History Marks: ${studentData.history}</p>
+                        <p>Math Marks: ${studentData.math}</p>
+                        <p>English Marks: ${studentData.english}</p>
+                        <p>Geography Marks: ${studentData.geography}</p>
+                        <p>Total Marks: ${studentData.total}</p>
+                    `;
+                } else {
+                    alert('Student not found or name does not match.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
